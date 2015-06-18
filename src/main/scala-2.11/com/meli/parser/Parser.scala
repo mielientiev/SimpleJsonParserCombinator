@@ -3,8 +3,7 @@ package com.meli.parser
 trait Parser[+A] extends (String => Result[A]) {
 
   def ~>[U](parser: => Parser[U]): Parser[U] = new Parser[U] {
-    override def apply(input: String): Result[U] =
-      Parser.this(input) match {
+    override def apply(input: String): Result[U] = Parser.this(input) match {
         case Success(value, remaining) => parser(remaining)
         case Failure(msg, inp) => Failure(msg, inp)
       }
@@ -32,7 +31,7 @@ trait Parser[+A] extends (String => Result[A]) {
 
   def repeat[U](p: => Parser[U], splitter: String): Parser[List[U]] = new Parser[List[U]] {
     override def apply(in: String): Result[List[U]] = p(in) match {
-      case Success(firstLetter, rest) => apply(rest).map(x => (firstLetter :: x))
+      case Success(elem, rest) => apply(rest).map(x => (elem :: x))
       case _ if in.startsWith(splitter) => apply(in.drop(splitter.length))
       case _ => Success(Nil, in)
     }
